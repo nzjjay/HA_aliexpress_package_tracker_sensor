@@ -300,6 +300,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
                 "original_tracking_numbers": cleaned_original_numbers,  # Store the originally added numbers
             }
 
+        # --- Include stored packages not returned by the API ---
+        # This ensures sensors stay available (with "Unknown" status) so they
+        # can still be edited and deleted from the card.
+        for stored_key in stored_data:
+            if stored_key not in processed_data:
+                _LOGGER.debug(
+                    "Package %s not returned by API, adding stub entry", stored_key
+                )
+                processed_data[stored_key] = {
+                    "api_data": {},
+                    CONF_TITLE: stored_data[stored_key].get(CONF_TITLE, CONF_PACKAGE),
+                    "original_tracking_numbers": stored_data[stored_key].get(
+                        CONF_TRACKING_NUMBER, stored_key
+                    ),
+                }
+
         # --- Clean up merged entries from store ---
         if potentially_merged_track_ids:
             made_changes = False

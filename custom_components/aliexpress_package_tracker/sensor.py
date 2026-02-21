@@ -212,7 +212,7 @@ class AliexpressPackageSensor(CoordinatorEntity, SensorEntity):
             "carrier": api_data.get("destCpInfo", {}).get("cpName"),
             "last_update_time": self._parse_timestamp(api_data.get("latestTrace", {}).get("time")),
         }
-        self._attr_available = bool(data)
+        self._attr_available = self._order_number in (self.coordinator.data or {})
 
     def _parse_timestamp(self, timestamp_ms: int | None) -> datetime | None:
         """Convert API timestamp to datetime."""
